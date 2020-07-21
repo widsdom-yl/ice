@@ -52,6 +52,7 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
     SegmentedGroup segmentedGroup;
     MyLineChart chart_view_temp;
     List<String> xList = new ArrayList<>();
+    List<String> xMarkList = new ArrayList<>();
     List<Integer> yElecList = new ArrayList<>();
     List<Float> yTempList = new ArrayList<>();
     String key;
@@ -192,12 +193,19 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
     void parseHistroyData(List<ICEDataModel> lists){
         int size = lists.size();
         if(size>0){
+            xMarkList.clear();
             xList.clear();
             yElecList.clear();
             for(int i=size-1;i>=0;i--){
                 ICEDataModel model = lists.get(i);
+                if(i == 0){
+                    xList.add(model.date);
+                }
+                else{
+                    xList.add("");
+                }
+                xMarkList.add(model.date);
 
-                xList.add(model.date);
 
                 if (key.equals("a1")){
                     yElecList.add(model.a1);
@@ -260,10 +268,14 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
 
 
 
+
         //去除右边的y轴
         YAxis yAxisRight = chart_view_elec_current.getAxisRight();
         yAxisRight.setEnabled(false);
 
+
+        YAxis yAxis = chart_view_elec_current.getAxisLeft();
+        yAxis.setAxisMinimum(0f); // start at zero
 
 
     }
@@ -312,7 +324,7 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
             set.setCubicIntensity(0.2f);
             set.setDrawCircles(false);  //设置有圆点
             set.setLineWidth(2f);    //设置线的宽度
-
+            set.setDrawValues(false);
             int  color=  Color.rgb(255,100, 255);
 
             set.setColor(color);
@@ -350,7 +362,7 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
         ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         ll1.setTextSize(10f);
 
-        LimitLine ll2 = new LimitLine(-10f, "Lower Limit");
+        LimitLine ll2 = new LimitLine(0f, "Lower Limit");
         ll2.setLineWidth(4f);
         ll2.enableDashedLine(10f, 10f, 0f);
         ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
@@ -405,6 +417,7 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
         LineDataSet set =new LineDataSet(yVals, getString(R.string.linetemp)+"(℃)");
 
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);//设置曲线为圆滑的线
+        set.setDrawValues(false);                     // 设置是否显示数据点的值
         set.setCubicIntensity(0.2f);
         set.setDrawCircles(true);  //设置有圆点
         set.setLineWidth(2f);    //设置线的宽度
@@ -491,7 +504,7 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
         else{
             detailsMarkerView.setMarkType(DetailsTiltMarkerView.MarkType.MarkType_ELectric);
         }
-        detailsMarkerView.setxValues(xList);
+        detailsMarkerView.setxValues(xMarkList);
         detailsMarkerView.setChartView(chart_view_elec_current);
         chart_view_elec_current.setDetailsMarkerView(detailsMarkerView);
         chart_view_elec_current.setPositionMarker(new PositionMarker(this));

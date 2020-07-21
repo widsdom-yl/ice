@@ -335,13 +335,13 @@ public class DevDetailActivity extends BaseAppCompatActivity implements DevStatu
     @Override
     public void onItemClickListener(View view, int position) {
         if(3 == position){
-            Intent intent = new Intent(this,DivideChannelDetailActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putString(param2,devid);
-            bundle.putString(param3,getString(R.string.string_ice_thick));
-            bundle.putString(param4,"icethickness");
-            intent.putExtras(bundle);
-            startActivity(intent);
+//            Intent intent = new Intent(this,DivideChannelDetailActivity.class);
+//            Bundle bundle = new Bundle();
+//            bundle.putString(param2,devid);
+//            bundle.putString(param3,getString(R.string.string_ice_thick));
+//            bundle.putString(param4,"icethickness");
+//            intent.putExtras(bundle);
+//            startActivity(intent);
         }
     }
 
