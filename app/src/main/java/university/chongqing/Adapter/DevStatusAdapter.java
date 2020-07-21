@@ -47,7 +47,7 @@ public class DevStatusAdapter extends RecyclerView.Adapter<university.chongqing.
     }
 
     @Override
-    public void onBindViewHolder(BaseHolder holder, int position) {
+    public void onBindViewHolder(final BaseHolder holder, final int position) {
         if (holder instanceof  BaseHolder){
             if (position >=1 && position <=4){
                 final int index = position -1;
@@ -75,12 +75,22 @@ public class DevStatusAdapter extends RecyclerView.Adapter<university.chongqing.
                // text_history.setText(bean.getName());
             }
             else if (position >mDivisionList.size() ){
-                int index = position -1-mDivisionList.size();
+                final int index = position -1-mDivisionList.size();
                 EnvItemBean bean =  mEnvList.get(index);
                 TextView text_title = holder.getView(R.id.text_title);
                 TextView text_detail = holder.getView(R.id.text_detail);
                 text_title.setText(bean.getName());
                 text_detail.setText(bean.getDetail());
+                ((BaseHolder) holder).itemView.setOnClickListener(
+                        new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View v)
+                            {
+                                mItemClickListener.onItemClickListener(v,index);
+
+                            }
+                        });
             }
         }
     }
@@ -118,6 +128,14 @@ public class DevStatusAdapter extends RecyclerView.Adapter<university.chongqing.
 
 
     }
+    public interface OnItemClickListener
+    {
+        //条目被点击时触发的回调
+        //tpe:0-item被点击 1-share被点击 2-回放被点击 3-设置被点击
+        void onItemClickListener(View view, int position);
+
+
+    }
     public interface OnIceSetClickListener
     {
         //条目被点击时触发的回调
@@ -142,7 +160,13 @@ public class DevStatusAdapter extends RecyclerView.Adapter<university.chongqing.
     {
         this.mHistoryClickListener = clickListener;
     }
+    public void setOnItemClickListener(OnItemClickListener itemClickListener)
+    {
+        this.mItemClickListener = itemClickListener;
+    }
 
+
+    OnItemClickListener mItemClickListener;
     OnHistoryClickListener mHistoryClickListener;
     OnCheckBoxClickListener mCheckBoxClickListener;
 }

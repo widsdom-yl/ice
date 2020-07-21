@@ -36,4 +36,7 @@
     <string name="error_login_failed">登录失败，请检查用户名和密码</string>
     <string name="login_success">登录成功</string>
     <string name="action_sign_in">登录</string>
+    <string name="span_five_minute">最新</string>
+    <string name="span_one_hour">每小时</string>
+    <string name="span_daily">每天</string>
 </resources>

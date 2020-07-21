@@ -9,7 +9,7 @@ public class ICEDataModel {
     public Integer a4;
     public float temp;
     public float humidity;
-    public float icethickness;
+    public Integer icethickness;
     public float getA1(){
         float ret = a1-22 > 0 ? a1-22:0;
         return ret*400/1000;

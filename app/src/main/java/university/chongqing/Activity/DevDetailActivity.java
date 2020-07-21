@@ -39,7 +39,7 @@ import university.chongqing.model.ResponseModel;
 import university.chongqing.util.Config;
 import university.chongqing.util.GsonUtil;
 //融冰装置详细信息，包含每个分裂的状态信息，每个分裂的状态信息为实时电流，导线温度，融冰状态
-public class DevDetailActivity extends BaseAppCompatActivity implements DevStatusAdapter.OnHistoryClickListener, DevStatusAdapter.OnCheckBoxClickListener, View.OnClickListener {
+public class DevDetailActivity extends BaseAppCompatActivity implements DevStatusAdapter.OnHistoryClickListener, DevStatusAdapter.OnCheckBoxClickListener, View.OnClickListener, DevStatusAdapter.OnItemClickListener {
 
     static  final  String param1 = "devname";
     static  final  String param2 = "devid";
@@ -102,8 +102,10 @@ public class DevDetailActivity extends BaseAppCompatActivity implements DevStatu
         if(mAdapter == null){
             mAdapter = new DevStatusAdapter(mDivisionList,mEnvList);
             mListView.setAdapter(mAdapter);
+
             mAdapter.setOnHistoryClickListener(this);
             mAdapter.setCheckBoxClickListener(this);
+            mAdapter.setOnItemClickListener(this);
 
 
         }
@@ -328,6 +330,19 @@ public class DevDetailActivity extends BaseAppCompatActivity implements DevStatu
             }
         });
         builder.show();
+    }
+
+    @Override
+    public void onItemClickListener(View view, int position) {
+        if(3 == position){
+            Intent intent = new Intent(this,DivideChannelDetailActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(param2,devid);
+            bundle.putString(param3,getString(R.string.string_ice_thick));
+            bundle.putString(param4,"icethickness");
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
     }
 
     public class CmdBean {

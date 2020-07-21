@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.components.LimitLine;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import info.hoang8f.android.segmented.SegmentedGroup;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -42,11 +44,12 @@ import university.chongqing.model.ResponseModel;
 import university.chongqing.util.Config;
 import university.chongqing.util.GsonUtil;
 
-public class DivideChannelDetailActivity extends BaseAppCompatActivity implements OnChartGestureListener, OnChartValueSelectedListener {
+public class DivideChannelDetailActivity extends BaseAppCompatActivity implements OnChartGestureListener, OnChartValueSelectedListener, RadioGroup.OnCheckedChangeListener {
     static  final  String param2 = "devid";
     static  final  String param3 = "detail";
     static  final  String param4 = "key";
     MyLineChart chart_view_elec_current ;
+    SegmentedGroup segmentedGroup;
     MyLineChart chart_view_temp;
     List<String> xList = new ArrayList<>();
     List<Integer> yElecList = new ArrayList<>();
@@ -63,6 +66,10 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
             setCustomTitle(bundle.getString(param3),true);
             key = bundle.getString(param4);
         }
+        segmentedGroup= findViewById(R.id.segmented);
+        segmentedGroup.setOnCheckedChangeListener(this);
+        segmentedGroup.check(R.id.btn_mode_1);
+
         initChartView();
         initTempChartView();
         initValue();
@@ -113,12 +120,12 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
 //        loadDataForChartElecView();
         //loadDataForTempChartView();
 
-        loadHistoryData();
+        loadHistoryData(0);
     }
 
     //加载历史数据
     //type 0：依次获取，type-1：每小时 type-2：每天
-    void loadHistoryData(){
+    void loadHistoryData(int type){
         if (lod == null)
         {
             lod = new LoadingDialog(this);
@@ -127,7 +134,7 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
         OkHttpClient client = new OkHttpClient();
         FormBody formBody = new FormBody.Builder()
                 .add("did", devid)
-                .add("tpe", ""+1)
+                .add("tpe", ""+type)
                 .build();
 
         final Request request = new Request.Builder()
@@ -203,6 +210,9 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
                 }
                 else if(key.equals("a4")){
                     yElecList.add(model.a4);
+                }
+                else if(key.equals("icethickness")){
+                    yElecList.add(model.icethickness);
                 }
 
             }
@@ -289,12 +299,20 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
                yVals.add(new Entry(i,yElecList.get(i)));
            }
 
-            LineDataSet set =new LineDataSet(yVals, getString(R.string.eleccurrent)+"(A)");
+            LineDataSet set ;
+           if(key.equals("icethickness")){
+               set =new LineDataSet(yVals, getString(R.string.icethick)+"(mm)");
+           }
+           else{
+               set =new LineDataSet(yVals, getString(R.string.eleccurrent)+"(A)");
+           }
+
 
             set.setMode(LineDataSet.Mode.CUBIC_BEZIER);//设置曲线为圆滑的线
             set.setCubicIntensity(0.2f);
             set.setDrawCircles(false);  //设置有圆点
             set.setLineWidth(2f);    //设置线的宽度
+
             int  color=  Color.rgb(255,100, 255);
 
             set.setColor(color);
@@ -314,6 +332,7 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
         chart_view_temp.setDrawGridBackground(false);
         // 无描述文本
         chart_view_temp.getDescription().setEnabled(false);
+
 
         // 使能点击
         chart_view_temp.setTouchEnabled(true);
@@ -466,6 +485,12 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
      */
     public void createMakerView() {
         DetailsTiltMarkerView detailsMarkerView = new DetailsTiltMarkerView(this);
+        if(key.equals("icethickness")){
+            detailsMarkerView.setMarkType(DetailsTiltMarkerView.MarkType.MarkType_Ice);
+        }
+        else{
+            detailsMarkerView.setMarkType(DetailsTiltMarkerView.MarkType.MarkType_ELectric);
+        }
         detailsMarkerView.setxValues(xList);
         detailsMarkerView.setChartView(chart_view_elec_current);
         chart_view_elec_current.setDetailsMarkerView(detailsMarkerView);
@@ -487,4 +512,20 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
     LoadingDialog lod;
     final  static  String tag = "chartview";
 
+    @Override
+    public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+        switch (checkedId) {
+            case R.id.btn_mode_1:
+                loadHistoryData(0);
+                break;
+            case R.id.btn_mode_2:
+                loadHistoryData(1);
+                break;
+            case R.id.btn_mode_3:
+                loadHistoryData(2);
+                break;
+            default:
+                break;
+        }
+    }
 }
