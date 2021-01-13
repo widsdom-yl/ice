@@ -10,7 +10,7 @@
         android:id="@+id/list_detail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="150dp"
         android:divider="#FFB900"
         android:dividerHeight="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -35,5 +35,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/list_detail" />
+
+    <Button
+        android:id="@+id/button_ice_fake"
+        style="?android:textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginEnd="80dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/button_green_corner"
+        android:text="@string/string_ice_thick_set1"
+        android:textSize="18sp"
+        android:textColor="#ffffff"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_ice_thick" />
 
 </android.support.constraint.ConstraintLayout>

@@ -48,15 +48,20 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
     static  final  String param2 = "devid";
     static  final  String param3 = "detail";
     static  final  String param4 = "key";
+    static  final  String param5 = "param5";
+    static  final  String param6 = "param6";
     MyLineChart chart_view_elec_current ;
     SegmentedGroup segmentedGroup;
     MyLineChart chart_view_temp;
     List<String> xList = new ArrayList<>();
     List<String> xMarkList = new ArrayList<>();
-    List<Integer> yElecList = new ArrayList<>();
+    List<Float> yElecList = new ArrayList<>();
     List<Float> yTempList = new ArrayList<>();
     String key;
+    String devname;
+    String danwei;
     String devid;
+    int deviceType = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,15 +69,18 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
         Bundle bundle = this.getIntent().getExtras();
         if (bundle != null){
             devid = bundle.getString(param2);
+            devname = bundle.getString(param3);
             setCustomTitle(bundle.getString(param3),true);
             key = bundle.getString(param4);
+            danwei = bundle.getString(param5,"mm");
+            deviceType = bundle.getInt(param6, 0);
         }
         segmentedGroup= findViewById(R.id.segmented);
         segmentedGroup.setOnCheckedChangeListener(this);
         segmentedGroup.check(R.id.btn_mode_1);
 
         initChartView();
-        initTempChartView();
+        //initTempChartView();
         initValue();
 
 
@@ -118,7 +126,7 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
 
 
 
-//        loadDataForChartElecView();
+     //  loadDataForChartElecView();
         //loadDataForTempChartView();
 
         loadHistoryData(0);
@@ -208,19 +216,25 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
 
 
                 if (key.equals("a1")){
-                    yElecList.add(model.a1);
+                    yElecList.add(model.getA1(deviceType));
                 }
                 else if(key.equals("a2")){
-                    yElecList.add(model.a2);
+                    yElecList.add(model.getA2(deviceType));
                 }
                 else if(key.equals("a3")){
-                    yElecList.add(model.a3);
+                    yElecList.add(model.getA3(deviceType));
                 }
                 else if(key.equals("a4")){
-                    yElecList.add(model.a4);
+                    yElecList.add(model.getA4(deviceType));
                 }
                 else if(key.equals("icethickness")){
-                    yElecList.add(model.icethickness);
+                    yElecList.add( (float)model.icethickness);
+                }
+                else if(key.equals("temp")){
+                    yElecList.add( (float)model.getTemp());
+                }
+                else if(key.equals("humi")){
+                    yElecList.add( (float)model.getHumidity());
                 }
 
             }
@@ -275,7 +289,10 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
 
 
         YAxis yAxis = chart_view_elec_current.getAxisLeft();
-        yAxis.setAxisMinimum(0f); // start at zero
+        if(!key.equals("temp")){
+            yAxis.setAxisMinimum(0f); // start at zero
+        }
+
 
 
     }
@@ -315,8 +332,18 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
            if(key.equals("icethickness")){
                set =new LineDataSet(yVals, getString(R.string.icethick)+"(mm)");
            }
-           else{
+           else if(key.contains("temp")){
+               set =new LineDataSet(yVals, getString(R.string.envtemp)+"(℃)");
+           }
+           else if(key.contains("humi")){
+               set =new LineDataSet(yVals, getString(R.string.envhumidity)+"(%)");
+           }
+           else if(devname.contains(getString(R.string.eleccurrent))){
                set =new LineDataSet(yVals, getString(R.string.eleccurrent)+"(A)");
+           }
+
+           else{
+               set =new LineDataSet(yVals, getString(R.string.eleccurrent1)+"(g)");
            }
 
 
@@ -414,7 +441,7 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
             yVals.add(new Entry(i,yTempList.get(i)));
         }
 
-        LineDataSet set =new LineDataSet(yVals, getString(R.string.linetemp)+"(℃)");
+        LineDataSet set =new LineDataSet(yVals, getString(R.string.envtemp)+"(℃)");
 
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);//设置曲线为圆滑的线
         set.setDrawValues(false);                     // 设置是否显示数据点的值
@@ -501,9 +528,20 @@ public class DivideChannelDetailActivity extends BaseAppCompatActivity implement
         if(key.equals("icethickness")){
             detailsMarkerView.setMarkType(DetailsTiltMarkerView.MarkType.MarkType_Ice);
         }
-        else{
+        else if(key.equals("temp")){
+            detailsMarkerView.setMarkType(DetailsTiltMarkerView.MarkType.MarkType_Temp);
+        }
+        else if(key.equals("humi")){
+            detailsMarkerView.setMarkType(DetailsTiltMarkerView.MarkType.MarkType_Humi);
+        }
+        else if(devname.contains(getString(R.string.eleccurrent))){
             detailsMarkerView.setMarkType(DetailsTiltMarkerView.MarkType.MarkType_ELectric);
         }
+
+        else{
+            detailsMarkerView.setMarkType(DetailsTiltMarkerView.MarkType.MarkType_Jibin);
+        }
+
         detailsMarkerView.setxValues(xMarkList);
         detailsMarkerView.setChartView(chart_view_elec_current);
         chart_view_elec_current.setDetailsMarkerView(detailsMarkerView);

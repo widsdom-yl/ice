@@ -18,6 +18,7 @@ import university.chongqing.Bean.EnvItemBean;
 public class DevStatusAdapter extends RecyclerView.Adapter<university.chongqing.Adapter.BaseHolder> implements CompoundButton.OnCheckedChangeListener {
     List<DevisionDetailBean> mDivisionList;
     List<EnvItemBean> mEnvList ;
+    public  int type = 0;//0：默认融冰，1：积冰
 
     public DevStatusAdapter(List<DevisionDetailBean> mDivisionList, List<EnvItemBean> mEnvList) {
         this.mDivisionList = mDivisionList;
@@ -49,7 +50,18 @@ public class DevStatusAdapter extends RecyclerView.Adapter<university.chongqing.
     @Override
     public void onBindViewHolder(final BaseHolder holder, final int position) {
         if (holder instanceof  BaseHolder){
-            if (position >=1 && position <=4){
+            if (position == 0) {
+                TextView text_title = holder.getView(R.id.text_title);
+                TextView text_status = holder.getView(R.id.text_status);
+                TextView text_elec_current = holder.getView(R.id.text_elec_current);
+
+                if (1 ==  type){
+                    text_title.setText(R.string.division10);
+                    text_status.setText(R.string.meltstatus1);
+                    text_elec_current.setText(R.string.eleccurrent1);
+                }
+            }
+            else if (position >=1 && position <=4){
                 final int index = position -1;
                 DevisionDetailBean bean = mDivisionList.get(index);
                 TextView text_title = holder.getView(R.id.text_title);
@@ -116,7 +128,7 @@ public class DevStatusAdapter extends RecyclerView.Adapter<university.chongqing.
         String tag = (String) compoundButton.getTag();
         int tagid = Integer.parseInt(tag);
         if (mCheckBoxClickListener!= null){
-            mCheckBoxClickListener.onCheckBoxClick(tagid,b);
+            mCheckBoxClickListener.onCheckBoxClick(compoundButton,tagid,b);
         }
     }
 
@@ -147,7 +159,7 @@ public class DevStatusAdapter extends RecyclerView.Adapter<university.chongqing.
     {
         //条目被点击时触发的回调
         //tpe:0-item被点击 1-share被点击 2-回放被点击 3-设置被点击
-        void onCheckBoxClick(int position,boolean on);
+        void onCheckBoxClick(View view, int position, boolean on);
 
 
     }

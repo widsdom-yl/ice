@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -38,20 +39,27 @@ import university.chongqing.model.ICEDataModel;
 import university.chongqing.model.ResponseModel;
 import university.chongqing.util.Config;
 import university.chongqing.util.GsonUtil;
+
+import static university.chongqing.Activity.DivideChannelDetailActivity.param6;
+
 //融冰装置详细信息，包含每个分裂的状态信息，每个分裂的状态信息为实时电流，导线温度，融冰状态
 public class DevDetailActivity extends BaseAppCompatActivity implements DevStatusAdapter.OnHistoryClickListener, DevStatusAdapter.OnCheckBoxClickListener, View.OnClickListener, DevStatusAdapter.OnItemClickListener {
 
     static  final  String param1 = "devname";
     static  final  String param2 = "devid";
     static  final  String param3 = "detail";
+    static  final  String param5 = "param5";
     static  final  String param4 = "key";
     List<DevisionDetailBean> mDivisionList = new ArrayList<DevisionDetailBean>();
     List<EnvItemBean> mEnvList = new ArrayList<EnvItemBean>();
     RecyclerView mListView;
     DevStatusAdapter mAdapter;
     Button button_ice_thick;
+    Button button_ice_fake;
     String title;
     String devid;
+    boolean pre_on = false;
+    int deviceType = 0; // 0:融冰 1：积冰
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,9 +70,14 @@ public class DevDetailActivity extends BaseAppCompatActivity implements DevStatu
             devid = bundle.getString(param2);
             setCustomTitle(title,true);
         }
-
+        pre_on = false;
+        deviceType = 0;
         mListView = findViewById(R.id.list_detail);
         button_ice_thick = findViewById(R.id.button_ice_thick);
+        button_ice_fake = findViewById(R.id.button_ice_fake);
+        if(!title.contains(getString(R.string.jibin))) {
+            button_ice_fake.setVisibility(View.GONE);
+        }
         button_ice_thick.setOnClickListener(this);
         mListView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         mListView.setLayoutManager(new LinearLayoutManager(this));
@@ -78,22 +91,39 @@ public class DevDetailActivity extends BaseAppCompatActivity implements DevStatu
     void  reloadValue(ICEDataModel model){
         mDivisionList.clear();
         mEnvList.clear();
-        DevisionDetailBean bean1 = new DevisionDetailBean(getString(R.string.division1),model.getA1()+"A","20℃");
-        DevisionDetailBean bean2 = new DevisionDetailBean(getString(R.string.division2),model.getA2()+"A","21℃");
-        DevisionDetailBean bean3 = new DevisionDetailBean(getString(R.string.division3),model.getA3()+"A","19℃");
-        DevisionDetailBean bean4 = new DevisionDetailBean(getString(R.string.division4),model.getA4()+"A","20.5℃");
+        String division1 = getString(R.string.division1);
+        String division2 = getString(R.string.division2);
+        String division3 = getString(R.string.division3);
+        String division4 = getString(R.string.division4);
+        String danwei = "A";
+        if(title.contains(getString(R.string.jibin))) {
+            division1 = getString(R.string.division11);
+            division2 = getString(R.string.division12);
+            division3 = getString(R.string.division13);
+            division4 = getString(R.string.division14);
+            danwei = "g";
+            deviceType = 1;
+        }
+
+        DevisionDetailBean bean1 = new DevisionDetailBean(division1,model.getA1(deviceType)+danwei,"20℃");
+        DevisionDetailBean bean2 = new DevisionDetailBean(division2,model.getA2(deviceType)+danwei,"21℃");
+        DevisionDetailBean bean3 = new DevisionDetailBean(division3,model.getA3(deviceType)+danwei,"19℃");
+        DevisionDetailBean bean4 = new DevisionDetailBean(division4,model.getA4(deviceType)+danwei,"20.5℃");
 
         mDivisionList.add(bean1);
         mDivisionList.add(bean2);
         mDivisionList.add(bean3);
         mDivisionList.add(bean4);
-        EnvItemBean item1 = new EnvItemBean(getString(R.string.totalcurrent),model.getAllCurrent()+"A");
+        EnvItemBean item1 = new EnvItemBean(getString(R.string.totalcurrent),model.getAllCurrent(deviceType)+"A");
         EnvItemBean item2 = new EnvItemBean(getString(R.string.envtemp),model.getTemp()+"℃");
         EnvItemBean item3 = new EnvItemBean(getString(R.string.envhumidity),model.getHumidity()+"%");
         EnvItemBean item4 = new EnvItemBean(getString(R.string.icethick),model.icethickness+"mm");
         EnvItemBean item5 = new EnvItemBean(getString(R.string.battery),model.getBattery()+"V");
         EnvItemBean item6 = new EnvItemBean(getString(R.string.date),model.date);
-        mEnvList.add(item1);
+        if(!title.contains(getString(R.string.jibin))) {
+            mEnvList.add(item1);
+        }
+
         mEnvList.add(item2);
         mEnvList.add(item3);
         mEnvList.add(item4);
@@ -101,6 +131,9 @@ public class DevDetailActivity extends BaseAppCompatActivity implements DevStatu
         mEnvList.add(item6);
         if(mAdapter == null){
             mAdapter = new DevStatusAdapter(mDivisionList,mEnvList);
+            if(title.contains(getString(R.string.jibin))) {
+                mAdapter.type = 1;
+            }
             mListView.setAdapter(mAdapter);
 
             mAdapter.setOnHistoryClickListener(this);
@@ -214,10 +247,23 @@ public class DevDetailActivity extends BaseAppCompatActivity implements DevStatu
 
     @Override
     public void onHistoryClick(View view, int position) {
+
+
+
+
         Intent intent = new Intent(this,DivideChannelDetailActivity.class);
         Bundle bundle = new Bundle();
         bundle.putString(param2,devid);
-        bundle.putString(param3,mDivisionList.get(position).getName()+"-"+getString(R.string.eleccurrent));
+        if(deviceType == 0) {
+            bundle.putString(param3,mDivisionList.get(position).getName()+"-"+getString(R.string.eleccurrent));
+            bundle.putString(param5,"A");
+        }
+        else{
+            bundle.putString(param3,mDivisionList.get(position).getName()+"-"+getString(R.string.eleccurrent1));
+            bundle.putString(param5,"g");
+            bundle.putInt(param6,1);
+        }
+
         switch (position){
             case 0:
                 bundle.putString(param4,"a1");
@@ -240,12 +286,33 @@ public class DevDetailActivity extends BaseAppCompatActivity implements DevStatu
 
 
 
-
     @Override
-    public void onCheckBoxClick(final int position, final boolean on) {
+    public void onCheckBoxClick(View v,final int position, final boolean on) {
+
+        final CompoundButton compoundButton = (CompoundButton) v;
+        if(!compoundButton.isPressed()) {
+            return;
+        }
+        if(title.contains(getString(R.string.jibin))) {
+            if (on && pre_on) {
+
+                compoundButton.setChecked(false);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("")
+                        .setMessage("同一时刻只能一个柱体加热")
+                        .setPositiveButton("确认",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
 
 
 
+                            }
+                        })
+                        .setNegativeButton("取消", null).
+                        show();
+                return;
+            }
+
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("")
@@ -256,12 +323,17 @@ public class DevDetailActivity extends BaseAppCompatActivity implements DevStatu
                         cmd.devid=devid;
                         cmd.position = position;
                         cmd.on = on?1:0;
+                        pre_on = on;
                         sndCmd(cmd);
 
 
                     }
                 })
-                .setNegativeButton("取消", null).
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        compoundButton.setChecked(!on);
+                    }
+                }).
                 show();
 
 
@@ -334,15 +406,70 @@ public class DevDetailActivity extends BaseAppCompatActivity implements DevStatu
 
     @Override
     public void onItemClickListener(View view, int position) {
-        if(3 == position){
-//            Intent intent = new Intent(this,DivideChannelDetailActivity.class);
-//            Bundle bundle = new Bundle();
-//            bundle.putString(param2,devid);
-//            bundle.putString(param3,getString(R.string.string_ice_thick));
-//            bundle.putString(param4,"icethickness");
-//            intent.putExtras(bundle);
-//            startActivity(intent);
+        if(3 == position && !title.contains(getString(R.string.jibin))){
+            Intent intent = new Intent(this,DivideChannelDetailActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(param2,devid);
+            bundle.putString(param3,getString(R.string.string_ice_thick));
+            bundle.putString(param4,"icethickness");
+            intent.putExtras(bundle);
+            startActivity(intent);
         }
+        else if(1 == position && !title.contains(getString(R.string.jibin))){
+            //温度
+            Intent intent = new Intent(this,DivideChannelDetailActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(param2,devid);
+            bundle.putString(param3,getString(R.string.envtemp));
+            bundle.putString(param4,"temp");
+            bundle.putString(param5,"℃");
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
+        else if(2 == position && !title.contains(getString(R.string.jibin))){
+            //湿度
+            Intent intent = new Intent(this,DivideChannelDetailActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(param2,devid);
+            bundle.putString(param3,getString(R.string.envhumidity));
+            bundle.putString(param4,"humi");
+            bundle.putString(param5,"%");
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
+        else if(2 == position && title.contains(getString(R.string.jibin))){
+            Intent intent = new Intent(this,DivideChannelDetailActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(param2,devid);
+            bundle.putString(param3,getString(R.string.string_ice_thick));
+            bundle.putString(param4,"icethickness");
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
+        else if(0 == position && title.contains(getString(R.string.jibin))){
+            //温度
+            Intent intent = new Intent(this,DivideChannelDetailActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(param2,devid);
+            bundle.putString(param3,getString(R.string.envtemp));
+            bundle.putString(param4,"temp");
+            bundle.putString(param5,"℃");
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
+        else if(1 == position && title.contains(getString(R.string.jibin))){
+            //湿度
+            Intent intent = new Intent(this,DivideChannelDetailActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(param2,devid);
+            bundle.putString(param3,getString(R.string.envhumidity));
+            bundle.putString(param4,"humi");
+            bundle.putString(param5,"%");
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
+
+
     }
 
     public class CmdBean {

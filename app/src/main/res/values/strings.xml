@@ -11,8 +11,17 @@
     <string name="division2">分裂2</string>
     <string name="division3">分裂3</string>
     <string name="division4">分裂4</string>
+    <string name="jibin">积冰器</string>
+    <string name="division10">圆柱体</string>
+    <string name="division11">圆柱体1</string>
+    <string name="division12">圆柱体2</string>
+    <string name="division13">圆柱体3</string>
+    <string name="division14">圆柱体4</string>
+
     <string name="eleccurrent">电流</string>
+    <string name="eleccurrent1">覆冰量</string>
     <string name="meltstatus">融冰开关</string>
+    <string name="meltstatus1">柱体加热</string>
     <string name="linetemp">导线温度</string>
     <string name="totalcurrent">总电流</string>
     <string name="icethick">覆冰厚度</string>
@@ -25,6 +34,7 @@
     <string name="history">历史数据</string>
     <string name="string_ice_thick">覆冰厚度</string>
     <string name="string_ice_thick_set">覆冰厚度阈值设定</string>
+    <string name="string_ice_thick_set1">柱体旋转</string>
     <string name="string_cancel">取消</string>
     <string name="string_set">设定</string>
     <string name="detail">详情</string>
